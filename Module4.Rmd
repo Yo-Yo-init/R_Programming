@@ -1,0 +1,83 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r}
+
+#the data provided
+vectors <- c("0.6","103","bad","low","low",
+             "0.3","87","bad","low","high",
+             "0.4","32","bad","high","low",
+             "0.4","42","bad","high","high",
+             "0.2","59","good","low","low",
+             "0.6","109","good","low","high",
+             "0.3","78","good","high","low",
+             "0.4","205","good","high","high",
+             "0.9","135","NA","high","high",
+             "0.2","176","bad","high","high")
+
+
+#turning vectors into a dataframe separated by row into 5 columns
+df <- data.frame(matrix(vectors, ncol=5, byrow=TRUE))
+
+#naming the columns of the data frame
+colnames(df) <- c("Freq","bloodp","first","second","finaldecision")
+
+#turning first two columns into numeric
+df$Freq <- as.numeric(df$Freq)
+df$bloodp <- as.numeric((df$bloodp))
+
+#replacing categorical data into numeric
+df$first <- as.numeric(gsub('bad', "1", df$first))
+df$first <- as.numeric(gsub('good', "0", df$first))
+df$second <- as.numeric(gsub('high', "1", df$second))
+df$second <- as.numeric(gsub('low', "0", df$second))
+df$finaldecision <- as.numeric(gsub('high', "1", df$finaldecision))
+df$finaldecision <- as.numeric(gsub('low', "0", df$finaldecision))
+
+#removing empty NA rows
+df <- df[-9,]
+
+#turning the NA values coerced by gsub back into numerics
+df$first[is.na(df$first)] <- 0
+df$second[is.na(df$second)] <- 0
+df$finaldecision[is.na(df$finaldecision)] <- 0
+
+#boxplots of variables
+
+boxplot(df$Freq)
+boxplot(df$bloodp)
+boxplot(df$first)
+boxplot(df$second)
+boxplot(df$finaldecision)
+
+#histogram of variables
+
+hist(df$Freq)
+hist(df$bloodp)
+hist(df$first)
+hist(df$second)
+hist(df$finaldecision)
+
+#checking for correlation between bloodp and finaldecision with geom_point()
+library(ggplot2)
+
+library(ggplot2)
+
+ggplot(data = df, aes(x = finaldecision, y = bloodp, color = factor(finaldecision))) + 
+  geom_point() + 
+  scale_x_discrete(limits = c(0,1)) +
+  scale_color_manual(values = c("0" = "blue", "1" = "red"), 
+                     labels = c("Low risk", "High risk")) +
+  theme(axis.text.y = element_text(angle = 90, hjust = 1)) +
+  labs(color = "Risk level")
+
+```
+
+It seems that the patients with higher blood pressure are suffering worst outcomes according to the finaldecision variable provided.
+
+
